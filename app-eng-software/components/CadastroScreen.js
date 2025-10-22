@@ -20,6 +20,8 @@ export default class CadastroScreen extends Component {
   }
 
   gravar() {
+    this.props.navigation.navigate('Home');
+
     const email = this.state.user.toLowerCase();
     const password = this.state.password;
     const nome = this.state.nome;
@@ -49,7 +51,8 @@ export default class CadastroScreen extends Component {
           Alert.alert('Erro', 'Formato do email invalido');
         } else {
           console.log('Erro Desconhecido');
-          Alert.alert('Erro', 'Ocorreu um erro' + +error);
+          console.log(error.message);
+          Alert.alert('Erro', 'Ocorreu um erro' + +error.message);
         }
       });
   }

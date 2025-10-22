@@ -5,8 +5,10 @@ import InicioScreen from "./components/InicioScreen";
 import LoginScreen from "./components/LoginScreen";
 import CadastroScreen from "./components/CadastroScreen";
 import HomeScreen from "./components/HomeScreen";
-import AgendarScreen from "./components/AgendarScreen";
-import MeusAgendamentosScreen from "./components/MeusAgendamentosScreen";
+import AgendarScreen from "./components/HomeScreens/AgendarScreen";
+import MeusAgendamentosScreen from "./components/HomeScreens/MeusAgendamentosScreen";
+import CarteirinhaScreen from "./components/HomeScreens/CarteirinhaScreen";
+import SuporteScreen from "./components/HomeScreens/SuporteScreen";
 import './config/config';
 
 const Stack = createStackNavigator();
@@ -22,6 +24,8 @@ export default class App extends Component {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Agendar" component={AgendarScreen} />
           <Stack.Screen name="MeusAgendamentos" component={MeusAgendamentosScreen} />
+          <Stack.Screen name="Carteirinha" component={CarteirinhaScreen} />
+          <Stack.Screen name="Suporte" component={SuporteScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );

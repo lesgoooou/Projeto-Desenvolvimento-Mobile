@@ -10,8 +10,8 @@ const firebaseConfig = {
   projectId: "apps-eng-software",
   storageBucket: "apps-eng-software.firebasestorage.app",
   messagingSenderId: "1004161560851",
-  appId: "1:1004161560851:web:b9e4f38ae441140a71aae6",
-  measurementId: "G-TXVQ0BDGWL"
+  appId: "1:1004161560851:web:eabcc6a776afb90571aae6",
+  measurementId: "G-Y3EKYJFXSG"
 };
 
 if (!firebase.apps.length) {

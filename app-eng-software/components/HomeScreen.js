@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
 
 export default class HomeScreen extends Component {
   renderMenuItem(icon, title, subtitle, onPress) {
@@ -16,6 +16,23 @@ export default class HomeScreen extends Component {
       </TouchableOpacity>
     );
   }
+  voltar(){
+    Alert.alert(
+      "Sair",
+      "Tem Certeza que deseja sair?",
+      [
+        {
+          text: "Não"
+        },
+        {
+          text: "Sim",
+          onPress: () => {
+          this.props.navigation.navigate("Inicio"); 
+          }
+        }
+      ]
+    );
+  }
 
   render() {
     const { navigation } = this.props;
@@ -29,7 +46,6 @@ export default class HomeScreen extends Component {
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
-            {/* Seção Principal */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Agendamentos</Text>
               
@@ -48,7 +64,6 @@ export default class HomeScreen extends Component {
               )}
             </View>
 
-            {/* Seção Resultados */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Resultados e Histórico</Text>
               
@@ -74,7 +89,6 @@ export default class HomeScreen extends Component {
               )}
             </View>
 
-            {/* Seção Outros */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Outros Serviços</Text>
               
@@ -86,13 +100,6 @@ export default class HomeScreen extends Component {
               )}
               
               {this.renderMenuItem(
-                "📍",
-                "Localização da Clínica",
-                "Endereço e como chegar",
-                () => navigation.navigate("Localizacao")
-              )}
-              
-              {this.renderMenuItem(
                 "💬",
                 "Contato e Suporte",
                 "Fale conosco",
@@ -100,10 +107,9 @@ export default class HomeScreen extends Component {
               )}
             </View>
 
-            {/* Botão de Sair */}
             <TouchableOpacity
               style={styles.logoutButton}
-              onPress={() => navigation.navigate("Inicio")}
+              onPress={() => this.voltar()}
             >
               <Text style={styles.logoutButtonText}>Sair da Conta</Text>
             </TouchableOpacity>
@@ -140,8 +146,6 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-  },
-  content: {
     padding: 20,
     paddingBottom: 40,
   },
