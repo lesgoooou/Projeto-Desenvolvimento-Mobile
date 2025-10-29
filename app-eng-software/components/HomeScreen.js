@@ -1,7 +1,32 @@
 import React, { Component } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from "react-native";
+import firebase from '../config/config';
 
 export default class HomeScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      nomeUser: '',
+    };
+  }
+
+  componentDidMount() {
+    this.carregarDadosUsuario();
+  }
+
+  carregarDadosUsuario(){
+  const user = firebase.auth().currentUser;
+  const userId = user.uid; 
+
+  firebase.database().ref(`/users/${userId}`).once('value')
+    .then((snapshot) => {
+      const userData = snapshot.val();
+      if (userData && userData.nome) {
+        this.setState({ nomeUser: userData.nome });
+      }
+    });
+  }
+
   renderMenuItem(icon, title, subtitle, onPress) {
     return (
       <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -16,6 +41,7 @@ export default class HomeScreen extends Component {
       </TouchableOpacity>
     );
   }
+
   voltar(){
     Alert.alert(
       "Sair",
@@ -40,7 +66,7 @@ export default class HomeScreen extends Component {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.welcomeText}>Olá, paciente! 👋</Text>
+          <Text style={styles.welcomeText}>Olá, {this.state.nomeUser}! 👋</Text>
           <Text style={styles.headerSubtitle}>Como podemos te ajudar hoje?</Text>
         </View>
 

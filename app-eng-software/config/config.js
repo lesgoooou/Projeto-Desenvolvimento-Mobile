@@ -1,17 +1,12 @@
-// Import the functions you need from the SDKs you need
 import firebase from "firebase";
-// import firebase from "firebase/compat/app";
-// import "firebase/compat/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAreOKHhUYEVjfO_Fulu26JutDNLPG5Lwc",
-  authDomain: "apps-eng-software.firebaseapp.com",
-  databaseURL: "https://apps-eng-software-default-rtdb.firebaseio.com",
-  projectId: "apps-eng-software",
-  storageBucket: "apps-eng-software.firebasestorage.app",
-  messagingSenderId: "1004161560851",
-  appId: "1:1004161560851:web:eabcc6a776afb90571aae6",
-  measurementId: "G-Y3EKYJFXSG"
+  apiKey: "AIzaSyAl4rTUtWuC_L2wv5tIkwNHR6rPG9hiGGg",
+  authDomain: "app-clinica-medica-e0491.firebaseapp.com",
+  projectId: "app-clinica-medica-e0491",
+  storageBucket: "app-clinica-medica-e0491.firebasestorage.app",
+  messagingSenderId: "267591403313",
+  appId: "1:267591403313:web:ff4ae7db5dbdda71555210"
 };
 
 if (!firebase.apps.length) {

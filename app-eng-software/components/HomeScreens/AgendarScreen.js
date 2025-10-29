@@ -16,8 +16,32 @@ export default class AgendarScreen extends Component {
       selectedSpecialty: null,
       selectedDoctor: null,
       selectedDate: null,
+      datas: this.gerarProximasDatas(),
       selectedTime: null,
     };
+  }
+
+  gerarProximasDatas = () => {
+  const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  const dates = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const data = new Date();
+    data.setDate(data.getDate() + 1 + i); // Amanhã + i dias
+    
+    const diaSemana = diasSemana[data.getDay()];
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    
+    dates.push({
+      id: i + 1,
+      display: `${diaSemana}, ${dia}/${mes}`,
+      value: `${ano}-${mes}-${dia}`
+    });
+  }
+  
+  return dates;
   }
 
   specialties = [
@@ -42,14 +66,6 @@ export default class AgendarScreen extends Component {
     { id: 1, name: "Dr. Carlos Silva" },
     { id: 2, name: "Dra. Maria Santos" },
     { id: 3, name: "Dr. João Oliveira" },
-  ];
-
-  dates = [
-    { id: 1, display: "Seg, 20/10", value: "2025-10-20" },
-    { id: 2, display: "Ter, 21/10", value: "2025-10-21" },
-    { id: 3, display: "Qua, 22/10", value: "2025-10-22" },
-    { id: 4, display: "Qui, 23/10", value: "2025-10-23" },
-    { id: 5, display: "Sex, 24/10", value: "2025-10-24" },
   ];
 
   times = [
@@ -172,7 +188,7 @@ export default class AgendarScreen extends Component {
         <Text style={styles.sectionTitle}>Data</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View style={styles.dateContainer}>
-            {this.dates.map(date => (
+            {this.state.datas.map(date => (
               <TouchableOpacity
                 key={date.id}
                 style={[

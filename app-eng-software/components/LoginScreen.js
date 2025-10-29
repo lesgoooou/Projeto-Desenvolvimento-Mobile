@@ -6,32 +6,33 @@ export default class LoginScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      usuario: "",
+      user: "",
       senha: ""
-    };
+    }; 
   }
 
   ler() {
-    this.props.navigation.navigate("Home");
-    // const email = this.state.usuario.toLowerCase();
-    // const password = this.state.senha;
+    const email = this.state.user.toLowerCase();
+    const password = this.state.senha;
 
-    // firebase.auth()
-    //   .signInWithEmailAndPassword(email, password)
-    //   .then(() => {
-    //     Alert.alert("Logado!!!", "Login realizado com sucesso!");
-    //     this.props.navigation.navigate("Home", { email: this.state.usuario });
-    //   })
-    //   .catch(error => {
-    //     const errorCode = error.code;
-    //     if (errorCode === "auth/invalid-email") {
-    //       console.log("Formato do email invalido");
-    //       Alert.alert("Formato do email invalido");
-    //     } else {
-    //       console.log("Erro Desconhecido");
-    //       Alert.alert("Ocorreu um erro");
-    //     }
-    //   });
+    firebase.auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(() => {
+        Alert.alert("Sucesso", "Login realizado!");
+        this.props.navigation.navigate("Home");
+      })
+      .catch(error => {
+        const errorCode = error.code;
+        if (errorCode === "auth/user-not-found") {
+          Alert.alert("Erro","Usuário não encontrado");
+        } else if (errorCode === 'auth/wrong-password'){
+          Alert.alert("Erro", "Senha incorreta");
+        } else if (errorCode == "auth/invalid-email"){
+          Alert.alert("Formato do email invalido");
+        } else{
+          Alert.alert('Erro', 'Erro ao fazer login: ' + error.message);
+        }
+      });
   }
 
   render() {
@@ -47,8 +48,8 @@ export default class LoginScreen extends React.Component {
             style={styles.input} 
             placeholder="Usuário"
             placeholderTextColor="#302a2a"
-            value={this.state.usuario}
-            onChangeText={(text) => this.setState({ usuario: text })}
+            value={this.state.user}
+            onChangeText={(text) => this.setState({ user: text })}
           />
           <TextInput 
             style={styles.input} 

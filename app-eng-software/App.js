@@ -9,6 +9,9 @@ import AgendarScreen from "./components/HomeScreens/AgendarScreen";
 import MeusAgendamentosScreen from "./components/HomeScreens/MeusAgendamentosScreen";
 import CarteirinhaScreen from "./components/HomeScreens/CarteirinhaScreen";
 import SuporteScreen from "./components/HomeScreens/SuporteScreen";
+import ReceitaScreen from "./components/HomeScreens/ReceitaScreen";
+import HistoricoMedicoScreen from "./components/HomeScreens/HistoricoMedicoScreen";
+import ResultadoExameScreen from "./components/HomeScreens/ResultadoExameScreen";
 import './config/config';
 
 const Stack = createStackNavigator();
@@ -26,6 +29,9 @@ export default class App extends Component {
           <Stack.Screen name="MeusAgendamentos" component={MeusAgendamentosScreen} />
           <Stack.Screen name="Carteirinha" component={CarteirinhaScreen} />
           <Stack.Screen name="Suporte" component={SuporteScreen} />
+          <Stack.Screen name="Receitas" component={ReceitaScreen} />
+          <Stack.Screen name="HistMedico" component={HistoricoMedicoScreen} />
+          <Stack.Screen name="Resultados" component={ResultadoExameScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     );

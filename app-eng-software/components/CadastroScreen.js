@@ -15,44 +15,50 @@ export default class CadastroScreen extends Component {
     this.state = {
       nome: '',
       user: '',
-      password: '',
+      senha: '',
     };
   }
 
-  gravar() {
-    this.props.navigation.navigate('Home');
-
+  gravar(){
     const email = this.state.user.toLowerCase();
-    const password = this.state.password;
+    const senha = this.state.senha;
     const nome = this.state.nome;
 
-    firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
+    if (!nome || !email || !senha) {
+      Alert.alert('Erro', 'Preencha todos os campos');
+      return;
+    }
+
+    firebase.auth()
+      .createUserWithEmailAndPassword(email, senha)
       .then((userCredential) => {
-        return userCredential.user.updateProfile({
-          displayName: nome,
-        });
+        const userId = userCredential.user.uid;
+        
+        // Salvar dados adicionais no Realtime Database
+        return firebase.database()
+          .ref(`/users/${userId}`)
+          .set({
+            nome: nome,
+            email: email,
+            criadoEm: new Date().toISOString(),
+          });
       })
       .then(() => {
-        Alert.alert('Sucesso', 'Usuário cadastrado com sucesso!');
+        Alert.alert('Sucesso','Usuário cadastrado com sucesso!');
+        this.setState({ user: '', password: '', nome: '' });
         this.props.navigation.navigate('Home');
       })
       .catch((error) => {
         const errorCode = error.code;
-        if (errorCode == 'auth/email-already-in-use') {
-          console.log('Esse email já está em uso');
-          Alert.alert('Erro', 'Esse email já está em uso');
-        } else if (errorCode == 'auth/weak-password') {
-          console.log('Senha fraca');
-          Alert.alert('Erro', 'Senha fraca, digite outra senha');
-        } else if (errorCode == 'auth/invalid-email') {
-          console.log('Formato do email invalido');
-          Alert.alert('Erro', 'Formato do email invalido');
+        
+        if (errorCode === "auth/email-already-in-use") {
+          Alert.alert('Erro', "Esse email já está em uso");
+        } else if (errorCode === "auth/weak-password") {
+          Alert.alert('Erro', "Senha fraca, digite outra senha");
+        } else if (errorCode === "auth/invalid-email") {
+          Alert.alert('Erro', "Formato do email inválido");
         } else {
-          console.log('Erro Desconhecido');
-          console.log(error.message);
-          Alert.alert('Erro', 'Ocorreu um erro' + +error.message);
+          Alert.alert('Erro', "Ocorreu um erro: " + error.message);
         }
       });
   }
@@ -86,7 +92,7 @@ export default class CadastroScreen extends Component {
             placeholderTextColor="#302a2a"
             secureTextEntry
             value={this.state.password}
-            onChangeText={(text) => this.setState({ password: text })}
+            onChangeText={(text) => this.setState({ senha: text })}
           />
 
           <TouchableOpacity style={styles.button} onPress={() => this.gravar()}>
