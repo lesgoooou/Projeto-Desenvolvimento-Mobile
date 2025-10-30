@@ -1,17 +1,56 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Linking } from "react-native";
 
 export default class ContatoSuporteScreen extends Component {
+  telefone = "11989259944";
+
+  fazerLigacao = () => {
+    const numeroFormatado = `tel:${this.telefone}`;
+
+    Linking.canOpenURL(numeroFormatado)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(numeroFormatado);
+        } else {
+          Alert.alert("Erro", "Seu dispositivo não suporta ligações");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao abrir discador:", error);
+        Alert.alert("Erro", "Não foi possível fazer a ligação");
+      });
+  }
+  abrirWhatsApp = async () => {
+  const numeroLimpo = this.telefone.replace(/[^0-9]/g, '');
+  const mensagem = "Olá, preciso de suporte!";
+  
+  const whatsappURLiOS = `whatsapp://send?phone=${numeroLimpo}&text=${encodeURIComponent(mensagem)}`;
+  const whatsappURLAndroid = `whatsapp://send?phone=${numeroLimpo}&text=${encodeURIComponent(mensagem)}`;
+  const whatsappURLWeb = `https://wa.me/${numeroLimpo}?text=${encodeURIComponent(mensagem)}`;
+  
+  try {
+    const iOSSupported = await Linking.canOpenURL(whatsappURLiOS);
+    if (iOSSupported) {
+      await Linking.openURL(whatsappURLiOS);
+      return;
+    }
+    
+    const androidSupported = await Linking.canOpenURL(whatsappURLAndroid);
+    if (androidSupported) {
+      await Linking.openURL(whatsappURLAndroid);
+      return;
+    }
+
+    await Linking.openURL(whatsappURLWeb);
+    
+  } catch (error) {
+    console.error("Erro ao abrir WhatsApp:", error);
+    Alert.alert("Erro", "Não foi possível abrir o WhatsApp");
+  }
+  }
+
   render() {
     const { navigation } = this.props;
-
-    const mostrarTelefone = () => {
-      Alert.alert("Telefone de Suporte", "📞 (11) 99999-9999");
-    };
-
-    const mostrarEmail = () => {
-      Alert.alert("E-mail de Suporte", "✉️ biel.rosa.oliveira@gmail.com");
-    };
 
     return (
       <View style={styles.container}>
@@ -36,12 +75,12 @@ export default class ContatoSuporteScreen extends Component {
             com dúvidas ou problemas no aplicativo.
           </Text>
 
-          <TouchableOpacity style={styles.button} onPress={mostrarTelefone}>
+          <TouchableOpacity style={styles.button} onPress={this.fazerLigacao}>
             <Text style={styles.buttonText}>📞 Ligar para o Suporte</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={mostrarEmail}>
-            <Text style={styles.buttonText}>✉️ Enviar E-mail</Text>
+          <TouchableOpacity style={styles.button} onPress={this.abrirWhatsApp}>
+            <Text style={styles.buttonText}>📱 Falar via WhatsApp</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -5,176 +5,284 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ScrollView,
-  Alert 
+  Alert,
+  ActivityIndicator
 } from "react-native";
+import firebase from '../../config/config';
 
 export default class MeusAgendamentosScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       selectedTab: "proximos",
-      appointments: [
-        {
-          id: 1,
-          type: "Consulta",
-          specialty: "Cardiologia",
-          doctor: "Dr. Carlos Silva",
-          date: "20/10/2025",
-          time: "09:00",
-          status: "confirmado",
-          icon: "❤️"
-        },
-        {
-          id: 2,
-          type: "Exame",
-          specialty: "Hemograma Completo",
-          doctor: "Lab Central",
-          date: "22/10/2025",
-          time: "08:00",
-          status: "confirmado",
-          icon: "💉"
-        },
-        {
-          id: 3,
-          type: "Consulta",
-          specialty: "Dermatologia",
-          doctor: "Dra. Maria Santos",
-          date: "25/10/2025",
-          time: "14:30",
-          status: "confirmado",
-          icon: "🔬"
-        },
-      ],
-      history: [
-        {
-          id: 4,
-          type: "Consulta",
-          specialty: "Oftalmologia",
-          doctor: "Dr. João Oliveira",
-          date: "10/10/2025",
-          time: "10:00",
-          status: "realizado",
-          icon: "👁️"
-        },
-        {
-          id: 5,
-          type: "Exame",
-          specialty: "Raio-X",
-          doctor: "Lab Central",
-          date: "05/10/2025",
-          time: "15:00",
-          status: "realizado",
-          icon: "📷"
-        },
-        {
-          id: 6,
-          type: "Consulta",
-          specialty: "Pediatria",
-          doctor: "Dra. Ana Costa",
-          date: "28/09/2025",
-          time: "11:00",
-          status: "cancelado",
-          icon: "👶"
-        },
-      ],
+      agendamentos: [],
+      historico: [],
+      loading: true,
     };
   }
 
-  handleCancelAppointment = (appointment) => {
+  componentDidMount() {
+    this.carregarAgendamentos();
+  }
+
+  carregarAgendamentos = async () => {
+  try {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      Alert.alert('Erro', 'Usuário não autenticado');
+      return;
+    }
+
+    const agora = new Date();
+
+    const agendadosSnapshot = await firebase.database()
+      .ref('/agendados')
+      .orderByChild('userId')
+      .equalTo(user.uid)
+      .once('value');
+
+    const agendamentosFuturos = [];
+    const agendamentosPassados = [];
+
+    agendadosSnapshot.forEach((child) => {
+      const agendamento = {
+        id: child.key,
+        ...child.val()
+      };
+
+      const dataAgendamento = new Date(`${agendamento.data}T${agendamento.horario}:00`);
+
+      if (dataAgendamento > agora) {
+        agendamentosFuturos.push(agendamento);
+      } else {
+        agendamentosPassados.push(agendamento);
+      }
+    });
+
+    const historicoSnapshot = await firebase.database()
+      .ref('/historico')
+      .orderByChild('userId')
+      .equalTo(user.uid)
+      .once('value');
+
+    const historicoCompleto = [];
+    historicoSnapshot.forEach((child) => {
+      historicoCompleto.push({
+        id: child.key,
+        ...child.val()
+      });
+    });
+
+    this.setState({
+      agendamentos: agendamentosFuturos,
+      historico: [...agendamentosPassados, ...historicoCompleto],
+      loading: false,
+    });
+
+  } catch (error) {
+    console.error('Erro ao carregar agendamentos:', error);
+    Alert.alert('Erro', 'Não foi possível carregar os agendamentos');
+    this.setState({ loading: false });
+  }
+  }
+
+  handleMarcarComoFeito = (agendamento, foiFeito) => {
+    const textoAcao = foiFeito ? "realizado" : "não realizado";
+    
     Alert.alert(
-      "Cancelar Agendamento",
-      `Deseja realmente cancelar ${appointment.type.toLowerCase()} de ${appointment.specialty}?`,
+      "Confirmar",
+      `Confirma que o agendamento foi ${textoAcao}?`,
       [
+        { text: "Cancelar", style: "cancel" },
         {
-          text: "Não",
-          style: "cancel"
-        },
-        {
-          text: "Sim, Cancelar",
-          style: "destructive",
-          onPress: () => {
-            Alert.alert("Cancelado", "Seu agendamento foi cancelado com sucesso");
-            this.setState({
-              appointments: this.state.appointments.filter(a => a.id !== appointment.id)
-            });
-          }
+          text: "Confirmar",
+          onPress: () => this.moverParaHistorico(agendamento, foiFeito)
         }
       ]
     );
-  };
+  }
 
-  renderAppointmentCard = (appointment, showActions = true) => {
-    const statusColors = {
-      confirmado: "#4CAF50",
-      realizado: "#2196F3",
-      cancelado: "#f44336"
+  moverParaHistorico = async (agendamento, foiFeito) => {
+    try {
+      const user = firebase.auth().currentUser;
+
+      await firebase.database()
+        .ref('/historico')
+        .push({
+          userId: user.uid,
+          tipo: agendamento.tipo,
+          especialidade: agendamento.especialidade,
+          profissional: agendamento.profissional,
+          data: agendamento.data,
+          horario: agendamento.horario,
+          criadoEm: agendamento.criadoEm,
+          feito: foiFeito,
+          movido_em: new Date().toISOString(),
+        });
+
+      // Remove de Agendados
+      await firebase.database()
+        .ref(`/agendados/${agendamento.id}`)
+        .remove();
+
+      Alert.alert('Sucesso', 'Agendamento movido para o histórico');
+      this.carregarAgendamentos();
+
+    } catch (error) {
+      console.error('Erro ao mover para histórico:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar o agendamento');
+    }
+  }
+
+  handleCancelar = (agendamento) => {
+    Alert.alert(
+      "Cancelar Agendamento",
+      `Deseja realmente cancelar este agendamento?`,
+      [
+        { text: "Não", style: "cancel" },
+        {
+          text: "Sim, Cancelar",
+          style: "destructive",
+          onPress: () => this.cancelarAgendamento(agendamento)
+        }
+      ]
+    );
+  }
+
+  cancelarAgendamento = async (agendamento) => {
+    try {
+      await firebase.database()
+        .ref(`/agendados/${agendamento.id}`)
+        .remove();
+
+      Alert.alert('Cancelado', 'Agendamento cancelado com sucesso');
+      this.carregarAgendamentos();
+
+    } catch (error) {
+      console.error('Erro ao cancelar:', error);
+      Alert.alert('Erro', 'Não foi possível cancelar o agendamento');
+    }
+  }
+
+  formatarData = (dataISO) => {
+    const [ano, mes, dia] = dataISO.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  getIcone = (especialidade) => {
+    const icones = {
+      'Cardiologia': '❤️',
+      'Dermatologia': '🔬',
+      'Ortopedia': '🦴',
+      'Pediatria': '👶',
+      'Oftalmologia': '👁️',
+      'Neurologia': '🧠',
+      'Hemograma Completo': '💉',
+      'Raio-X': '📷',
+      'Ultrassom': '📡',
+      'Ressonância': '🔍',
+      'Tomografia': '🖼️',
+      'Eletrocardiograma': '📊',
     };
+    return icones[especialidade] || '📋';
+  }
 
-    const statusLabels = {
-      confirmado: "Confirmado",
-      realizado: "Realizado",
-      cancelado: "Cancelado"
-    };
-
+  renderAgendamentoCard = (agendamento, isPendente = false) => {
     return (
-      <View key={appointment.id} style={styles.appointmentCard}>
+      <View key={agendamento.id} style={styles.appointmentCard}>
         <View style={styles.appointmentHeader}>
           <View style={styles.appointmentTypeContainer}>
-            <Text style={styles.appointmentIcon}>{appointment.icon}</Text>
+            <Text style={styles.appointmentIcon}>
+              {this.getIcone(agendamento.especialidade)}
+            </Text>
             <View>
-              <Text style={styles.appointmentType}>{appointment.type}</Text>
-              <Text style={styles.appointmentSpecialty}>{appointment.specialty}</Text>
+              <Text style={styles.appointmentType}>{agendamento.tipo}</Text>
+              <Text style={styles.appointmentSpecialty}>{agendamento.especialidade}</Text>
             </View>
           </View>
-          <View style={[
-            styles.statusBadge, 
-            { backgroundColor: statusColors[appointment.status] }
-          ]}>
-            <Text style={styles.statusText}>{statusLabels[appointment.status]}</Text>
-          </View>
+          {!isPendente && agendamento.feito !== undefined && (
+            <View style={[
+              styles.statusBadge, 
+              { backgroundColor: agendamento.feito ? "#4CAF50" : "#f44336" }
+            ]}>
+              <Text style={styles.statusText}>
+                {agendamento.feito ? "Realizado" : "Não Realizado"}
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.appointmentDetails}>
           <View style={styles.detailRow}>
             <Text style={styles.detailIcon}>👨‍⚕️</Text>
-            <Text style={styles.detailText}>{appointment.doctor}</Text>
+            <Text style={styles.detailText}>{agendamento.profissional}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailIcon}>📅</Text>
-            <Text style={styles.detailText}>{appointment.date}</Text>
+            <Text style={styles.detailText}>{this.formatarData(agendamento.data)}</Text>
           </View>
           <View style={styles.detailRow}>
             <Text style={styles.detailIcon}>🕐</Text>
-            <Text style={styles.detailText}>{appointment.time}</Text>
+            <Text style={styles.detailText}>{agendamento.horario}</Text>
           </View>
         </View>
 
-        {showActions && appointment.status === "confirmado" && (
+        // Botões apenas para agendamentos passados que ainda não foram marcados
+        {isPendente && (
           <View style={styles.actionsContainer}>
-            <TouchableOpacity 
-              style={styles.actionButton}
-              onPress={() => Alert.alert("Remarcar", "Função em desenvolvimento")}
-            >
-              <Text style={styles.actionButtonText}>📅 Remarcar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={[styles.actionButton, styles.cancelButton]}
-              onPress={() => this.handleCancelAppointment(appointment)}
-            >
-              <Text style={[styles.actionButtonText, styles.cancelButtonText]}>❌ Cancelar</Text>
-            </TouchableOpacity>
+            <Text style={styles.questionText}>Exame foi feito?</Text>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity 
+                style={[styles.actionButton, styles.yesButton]}
+                onPress={() => this.handleMarcarComoFeito(agendamento, true)}
+              >
+                <Text style={styles.yesButtonText}>✓ Sim</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.actionButton, styles.noButton]}
+                onPress={() => this.handleMarcarComoFeito(agendamento, false)}
+              >
+                <Text style={styles.noButtonText}>✗ Não</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+        )}
+
+        // Botão de cancelar proximos agendamentos
+        {!isPendente && this.state.selectedTab === "proximos" && (
+          <TouchableOpacity 
+            style={styles.cancelButton}
+            onPress={() => this.handleCancelar(agendamento)}
+          >
+            <Text style={styles.cancelButtonText}>❌ Cancelar Agendamento</Text>
+          </TouchableOpacity>
         )}
       </View>
     );
-  };
+  }
 
   render() {
     const { navigation } = this.props;
-    const { selectedTab, appointments, history } = this.state;
+    const { selectedTab, agendamentos, historico, loading } = this.state;
 
-    const currentList = selectedTab === "proximos" ? appointments : history;
-    const isEmpty = currentList.length === 0;
+    if (loading) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Meus Agendamentos</Text>
+          </View>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#2d6cdf" />
+          </View>
+        </View>
+      );
+    }
+
+    const historicoCompleto = historico.filter(a => a.feito !== undefined);
+    const historicoPendente = historico.filter(a => a.feito === undefined);
+
+    const currentList = selectedTab === "proximos" ? agendamentos : historicoCompleto;
+    const isEmpty = currentList.length === 0 && historicoPendente.length === 0;
 
     return (
       <View style={styles.container}>
@@ -220,6 +328,15 @@ export default class MeusAgendamentosScreen extends Component {
           style={styles.scrollView}
           contentContainerStyle={styles.content}
         >
+          {selectedTab === "historico" && historicoPendente.length > 0 && (
+            <>
+              <Text style={styles.sectionTitle}>Aguardando Confirmação</Text>
+              {historicoPendente.map(agendamento => 
+                this.renderAgendamentoCard(agendamento, true)
+              )}
+            </>
+          )}
+
           {isEmpty ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>📋</Text>
@@ -231,23 +348,26 @@ export default class MeusAgendamentosScreen extends Component {
               </Text>
               {selectedTab === "proximos" && (
                 <TouchableOpacity
-                  style={styles.AgendarButton}
+                  style={styles.agendarButton}
                   onPress={() => navigation.navigate("Agendar")}
                 >
-                  <Text style={styles.AgendarButtonText}>Agendar Consulta/Exame</Text>
+                  <Text style={styles.agendarButtonText}>Agendar Consulta/Exame</Text>
                 </TouchableOpacity>
               )}
             </View>
           ) : (
             <>
-              {currentList.map(appointment => 
-                this.renderAppointmentCard(appointment, selectedTab === "proximos")
+              {selectedTab === "historico" && historicoCompleto.length > 0 && (
+                <Text style={styles.sectionTitle}>Histórico Completo</Text>
+              )}
+              {currentList.map(agendamento => 
+                this.renderAgendamentoCard(agendamento, false)
               )}
             </>
           )}
         </ScrollView>
         
-        {!isEmpty && selectedTab === "proximos" && (
+        {selectedTab === "proximos" && (
           <TouchableOpacity
             style={styles.floatingButton}
             onPress={() => navigation.navigate("Agendar")}
@@ -281,6 +401,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   tabContainer: {
     flexDirection: "row",
     backgroundColor: "#fff",
@@ -313,6 +438,13 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 100,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 12,
+    marginTop: 8,
   },
   appointmentCard: {
     backgroundColor: "#fff",
@@ -377,27 +509,55 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   actionsContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#f0f0f0",
+  },
+  questionText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  buttonRow: {
     flexDirection: "row",
     gap: 10,
-    marginTop: 8,
   },
   actionButton: {
     flex: 1,
-    backgroundColor: "#e8f1ff",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
-  actionButtonText: {
-    color: "#2d6cdf",
-    fontSize: 14,
-    fontWeight: "600",
+  yesButton: {
+    backgroundColor: "#4CAF50",
+  },
+  yesButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  noButton: {
+    backgroundColor: "#f44336",
+  },
+  noButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   cancelButton: {
     backgroundColor: "#ffebee",
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 8,
   },
   cancelButtonText: {
     color: "#f44336",
+    fontSize: 14,
+    fontWeight: "600",
   },
   emptyContainer: {
     alignItems: "center",
@@ -420,13 +580,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 24,
   },
-  AgendarButton: {
+  agendarButton: {
     backgroundColor: "#2d6cdf",
     paddingHorizontal: 24,
     paddingVertical: 14,
     borderRadius: 8,
   },
-  AgendarButtonText: {
+  agendarButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
@@ -441,10 +601,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
   },
   floatingButtonText: {
     color: "#fff",

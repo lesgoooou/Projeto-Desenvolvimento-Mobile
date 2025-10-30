@@ -7,6 +7,7 @@ import {
   ScrollView,
   Alert 
 } from "react-native";
+import firebase from '../../config/config';
 
 export default class AgendarScreen extends Component {
   constructor(props) {
@@ -22,26 +23,26 @@ export default class AgendarScreen extends Component {
   }
 
   gerarProximasDatas = () => {
-  const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  const dates = [];
-  
-  for (let i = 0; i < 5; i++) {
-    const data = new Date();
-    data.setDate(data.getDate() + 1 + i); // Amanhã + i dias
+    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const dates = [];
     
-    const diaSemana = diasSemana[data.getDay()];
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
+    for (let i = 0; i < 5; i++) {
+      const data = new Date();
+      data.setDate(data.getDate() + 1 + i);
+      
+      const diaSemana = diasSemana[data.getDay()];
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const ano = data.getFullYear();
+      
+      dates.push({
+        id: i + 1,
+        display: `${diaSemana}, ${dia}/${mes}`,
+        value: `${ano}-${mes}-${dia}`
+      });
+    }
     
-    dates.push({
-      id: i + 1,
-      display: `${diaSemana}, ${dia}/${mes}`,
-      value: `${ano}-${mes}-${dia}`
-    });
-  }
-  
-  return dates;
+    return dates;
   }
 
   specialties = [
@@ -76,21 +77,50 @@ export default class AgendarScreen extends Component {
   handleConfirm = () => {
     const { selectedType, selectedSpecialty, selectedDoctor, selectedDate, selectedTime } = this.state;
     
+    // 1️⃣ Validação
     if (!selectedType || !selectedSpecialty || !selectedDoctor || !selectedDate || !selectedTime) {
       Alert.alert("Atenção", "Por favor, preencha todos os campos");
       return;
     }
 
-    Alert.alert(
-      "Agendamento Confirmado! ✅",
-      `Seu agendamento foi realizado com sucesso!\n\nDetalhes:\nTipo: ${selectedType}\nData: ${selectedDate}\nHorário: ${selectedTime}`,
-      [
-        {
-          text: "OK",
-          onPress: () => this.props.navigation.goBack()
-        }
-      ]
-    );
+    // 2️⃣ Pegar ID do usuário logado
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      Alert.alert("Erro", "Usuário não autenticado");
+      return;
+    }
+
+    // 3️⃣ Pegar a data completa (valor) da data selecionada
+    const dataCompleta = this.state.datas.find(d => d.display === selectedDate)?.value || selectedDate;
+
+    // 4️⃣ Salvar no Firebase
+    firebase.database()
+      .ref('/agendados')
+      .push({
+        userId: user.uid,
+        tipo: selectedType,
+        especialidade: selectedSpecialty,
+        profissional: selectedDoctor,
+        data: dataCompleta,
+        horario: selectedTime,
+        criadoEm: new Date().toISOString(),
+      })
+      .then(() => {
+        Alert.alert(
+          "Agendamento Confirmado! ✅",
+          `Seu agendamento foi realizado com sucesso!\n\nDetalhes:\nTipo: ${selectedType}\nData: ${selectedDate}\nHorário: ${selectedTime}`,
+          [
+            {
+              text: "OK",
+              onPress: () => this.props.navigation.goBack()
+            }
+          ]
+        );
+      })
+      .catch((error) => {
+        console.error("Erro ao salvar agendamento:", error);
+        Alert.alert("Erro", "Não foi possível confirmar o agendamento");
+      });
   };
 
   renderTypeSelector() {

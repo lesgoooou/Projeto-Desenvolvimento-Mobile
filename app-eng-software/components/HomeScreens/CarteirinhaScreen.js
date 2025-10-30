@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert, ActivityIndicator, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import firebase from 'firebase';
+import firebase from '../../config/config';
 
 class CarteirinhaScreen extends Component {
   constructor(props) {
