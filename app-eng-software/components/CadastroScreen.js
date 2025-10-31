@@ -34,7 +34,6 @@ export default class CadastroScreen extends Component {
       .then((userCredential) => {
         const userId = userCredential.user.uid;
         
-        // Salvar dados adicionais no Realtime Database
         return firebase.database()
           .ref(`/users/${userId}`)
           .set({

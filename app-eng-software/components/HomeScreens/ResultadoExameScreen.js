@@ -5,79 +5,123 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ScrollView,
-  Alert 
+  Alert,
+  ActivityIndicator
 } from "react-native";
+import firebase from '../../config/config';
 
 export default class ResultadosExamesScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      exams: [
-        {
-          id: 1,
-          name: "Hemograma Completo",
-          date: "22/10/2025",
-          lab: "Lab Central",
-          status: "disponivel"
-        },
-        {
-          id: 2,
-          name: "Glicemia",
-          date: "18/10/2025",
-          lab: "Lab Central",
-          status: "processando"
-        },
-        {
-          id: 3,
-          name: "Colesterol",
-          date: "05/10/2025",
-          lab: "Lab Saúde",
-          status: "disponivel"
-        },
-      ],
+      exames: [],
+      loading: true,
     };
   }
 
+  componentDidMount() {
+    this.carregarExames();
+  }
+
+  carregarExames = async () => {
+    try {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        Alert.alert('Erro', 'Usuário não autenticado');
+        return;
+      }
+
+      // Busca no histórico apenas os que foram FEITOS
+      const historicoSnapshot = await firebase.database()
+        .ref('/historico')
+        .orderByChild('userId')
+        .equalTo(user.uid)
+        .once('value');
+
+      const examesFeitos = [];
+
+      historicoSnapshot.forEach((child) => {
+        const item = child.val();
+        
+        // Só adiciona se foi marcado como FEITO (feito === true)
+        if (item.feito === true) {
+          examesFeitos.push({
+            id: child.key,
+            name: item.especialidade,
+            tipo: item.tipo,
+            date: this.formatarData(item.data),
+            lab: item.profissional,
+          });
+        }
+      });
+
+      this.setState({
+        exames: examesFeitos,
+        loading: false,
+      });
+
+    } catch (error) {
+      console.error('Erro ao carregar exames:', error);
+      Alert.alert('Erro', 'Não foi possível carregar os exames');
+      this.setState({ loading: false });
+    }
+  }
+
+  formatarData = (dataISO) => {
+    // Converte "2025-10-31" para "31/10/2025"
+    const [ano, mes, dia] = dataISO.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
   handleViewResult = (exam) => {
-    Alert.alert("Visualizar", `Abrindo resultado: ${exam.name}`);
+    Alert.alert(
+      "Visualizar Resultado",
+      `${exam.tipo}: ${exam.name}\nData: ${exam.date}\nProfissional: ${exam.lab}`,
+      [{ text: "OK" }]
+    );
   };
 
   renderExamCard = (exam) => {
-    const isAvailable = exam.status === "disponivel";
-
     return (
       <View key={exam.id} style={styles.card}>
         <View style={styles.cardHeader}>
           <Text style={styles.examName}>{exam.name}</Text>
-          {isAvailable ? (
-            <View style={styles.availableBadge}>
-              <Text style={styles.badgeText}>Disponível</Text>
-            </View>
-          ) : (
-            <View style={styles.processingBadge}>
-              <Text style={styles.badgeText}>Processando</Text>
-            </View>
-          )}
+          <View style={styles.availableBadge}>
+            <Text style={styles.badgeText}>Disponível</Text>
+          </View>
         </View>
 
-        <Text style={styles.labText}>🏥 {exam.lab}</Text>
+        <Text style={styles.typeText}>📋 {exam.tipo}</Text>
+        <Text style={styles.labText}>👨‍⚕️ {exam.lab}</Text>
         <Text style={styles.dateText}>📅 {exam.date}</Text>
 
-        {isAvailable && (
-          <TouchableOpacity 
-            style={styles.viewButton}
-            onPress={() => this.handleViewResult(exam)}
-          >
-            <Text style={styles.viewButtonText}>Ver Resultado</Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity 
+          style={styles.viewButton}
+          onPress={() => this.handleViewResult(exam)}
+        >
+          <Text style={styles.viewButtonText}>Ver Resultado</Text>
+        </TouchableOpacity>
       </View>
     );
   };
 
   render() {
     const { navigation } = this.props;
-    const { exams } = this.state;
+    const { exames, loading } = this.state;
+
+    if (loading) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Resultados de Exames</Text>
+          </View>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#2d6cdf" />
+            <Text style={styles.loadingText}>Carregando...</Text>
+          </View>
+        </View>
+      );
+    }
 
     return (
       <View style={styles.container}>
@@ -90,7 +134,17 @@ export default class ResultadosExamesScreen extends Component {
 
         <ScrollView style={styles.scrollView}>
           <View style={styles.content}>
-            {exams.map(exam => this.renderExamCard(exam))}
+            {exames.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyIcon}>📋</Text>
+                <Text style={styles.emptyTitle}>Nenhum resultado disponível</Text>
+                <Text style={styles.emptyText}>
+                  Os resultados aparecerão aqui quando você marcar seus exames/consultas como realizados
+                </Text>
+              </View>
+            ) : (
+              exames.map(exam => this.renderExamCard(exam))
+            )}
           </View>
         </ScrollView>
       </View>
@@ -119,6 +173,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#fff",
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: "#666",
+  },
   scrollView: {
     flex: 1,
   },
@@ -131,6 +195,10 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
   cardHeader: {
     flexDirection: "row",
@@ -150,16 +218,15 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 12,
   },
-  processingBadge: {
-    backgroundColor: "#FF9800",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
   badgeText: {
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
+  },
+  typeText: {
+    fontSize: 15,
+    color: "#666",
+    marginBottom: 6,
   },
   labText: {
     fontSize: 15,
@@ -181,5 +248,26 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 15,
     fontWeight: "600",
+  },
+  emptyContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+  },
+  emptyIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#666",
+    textAlign: "center",
+    paddingHorizontal: 40,
   },
 });

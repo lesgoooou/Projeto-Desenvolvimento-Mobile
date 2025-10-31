@@ -95,7 +95,7 @@ export default class HomeScreen extends Component {
               
               {this.renderMenuItem(
                 "🔬",
-                "Resultados de Exames",
+                "Resultados de Exames/Consultas",
                 "Acesse seus laudos e resultados",
                 () => navigation.navigate("Resultados")
               )}
