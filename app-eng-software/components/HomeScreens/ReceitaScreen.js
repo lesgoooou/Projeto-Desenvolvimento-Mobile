@@ -5,90 +5,99 @@ import {
   TouchableOpacity, 
   StyleSheet, 
   ScrollView,
-  Alert 
+  Alert,
+  Image 
 } from "react-native";
+
+const imagensMedicamentos = {
+  'losartana': require('../../assets/imagens/Losartana.png'),
+  'metformina': require('../../assets/imagens/Metformina.png'),
+  'omeprazol': require('../../assets/imagens/omeprazol.png'),
+  'amoxicilina': require('../../assets/imagens/amoxilina.png'),
+  'ibuprofeno': require('../../assets/imagens/ibuprofeno.png'),
+};
 
 export default class ReceitasMedicasScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedTab: "ativas",
-      activeRecipes: [
+      abaSelecionada: "ativas",
+      receitasAtivas: [
         {
           id: 1,
-          medication: "Losartana 50mg",
-          doctor: "Dr. Carlos Silva",
-          specialty: "Cardiologia",
-          date: "15/10/2025",
-          expiryDate: "15/01/2026",
-          dosage: "1 comprimido",
-          frequency: "1x ao dia (manhã)",
-          duration: "Uso contínuo",
-          icon: "💊",
-          instructions: "Tomar em jejum, 30 minutos antes do café"
+          medicamento: "Losartana 50mg",
+          medico: "Dr. Carlos Silva",
+          especialidade: "Cardiologia",
+          dataEmissao: "15/10/2025",
+          dataValidade: "15/01/2026",
+          dosagem: "1 comprimido",
+          frequencia: "1x ao dia (manhã)",
+          duracao: "Uso contínuo",
+          imagem: "losartana",
+          instrucoes: "Tomar em jejum, 30 minutos antes do café"
         },
         {
           id: 2,
-          medication: "Metformina 850mg",
-          doctor: "Dra. Ana Costa",
-          specialty: "Endocrinologia",
-          date: "10/10/2025",
-          expiryDate: "10/01/2026",
-          dosage: "1 comprimido",
-          frequency: "2x ao dia (almoço e jantar)",
-          duration: "Uso contínuo",
-          icon: "💉",
-          instructions: "Tomar durante as refeições"
+          medicamento: "Metformina 850mg",
+          medico: "Dra. Ana Costa",
+          especialidade: "Endocrinologia",
+          dataEmissao: "10/10/2025",
+          dataValidade: "10/01/2026",
+          dosagem: "1 comprimido",
+          frequencia: "2x ao dia (almoço e jantar)",
+          duracao: "Uso contínuo",
+          imagem: "metformina",
+          instrucoes: "Tomar durante as refeições"
         },
         {
           id: 3,
-          medication: "Omeprazol 20mg",
-          doctor: "Dr. Pedro Lima",
-          specialty: "Gastroenterologia",
-          date: "20/10/2025",
-          expiryDate: "20/11/2025",
-          dosage: "1 cápsula",
-          frequency: "1x ao dia (manhã)",
-          duration: "30 dias",
-          icon: "💊",
-          instructions: "Tomar em jejum, 30 minutos antes do café"
+          medicamento: "Omeprazol 20mg",
+          medico: "Dr. Pedro Lima",
+          especialidade: "Gastroenterologia",
+          dataEmissao: "20/10/2025",
+          dataValidade: "20/11/2025",
+          dosagem: "1 cápsula",
+          frequencia: "1x ao dia (manhã)",
+          duracao: "30 dias",
+          imagem: "omeprazol",
+          instrucoes: "Tomar em jejum, 30 minutos antes do café"
         },
       ],
-      expiredRecipes: [
+      receitasVencidas: [
         {
           id: 4,
-          medication: "Amoxicilina 500mg",
-          doctor: "Dra. Maria Santos",
-          specialty: "Clínico Geral",
-          date: "01/09/2025",
-          expiryDate: "08/09/2025",
-          dosage: "1 cápsula",
-          frequency: "3x ao dia (8h/8h)",
-          duration: "7 dias",
-          icon: "💊",
-          instructions: "Tomar após as refeições"
+          medicamento: "Amoxicilina 500mg",
+          medico: "Dra. Maria Santos",
+          especialidade: "Clínico Geral",
+          dataEmissao: "01/09/2025",
+          dataValidade: "08/09/2025",
+          dosagem: "1 cápsula",
+          frequencia: "3x ao dia (8h/8h)",
+          duracao: "7 dias",
+          imagem: "amoxicilina",
+          instrucoes: "Tomar após as refeições"
         },
         {
           id: 5,
-          medication: "Ibuprofeno 600mg",
-          doctor: "Dr. João Oliveira",
-          specialty: "Ortopedia",
-          date: "15/08/2025",
-          expiryDate: "20/08/2025",
-          dosage: "1 comprimido",
-          frequency: "3x ao dia",
-          duration: "5 dias",
-          icon: "💊",
-          instructions: "Tomar com alimento para evitar irritação gástrica"
+          medicamento: "Ibuprofeno 600mg",
+          medico: "Dr. João Oliveira",
+          especialidade: "Ortopedia",
+          dataEmissao: "15/08/2025",
+          dataValidade: "20/08/2025",
+          dosagem: "1 comprimido",
+          frequencia: "3x ao dia",
+          duracao: "5 dias",
+          imagem: "ibuprofeno",
+          instrucoes: "Tomar com alimento para evitar irritação gástrica"
         },
       ],
     };
   }
 
-  handleRenewRecipe = (recipe) => {
+  manipularRenovarReceita = (receita) => {
     Alert.alert(
       "Renovar Receita",
-      `Deseja solicitar renovação da receita de ${recipe.medication}?`,
+      `Deseja solicitar renovação da receita de ${receita.medicamento}?`,
       [
         { text: "Cancelar", style: "cancel" },
         {
@@ -99,18 +108,18 @@ export default class ReceitasMedicasScreen extends Component {
     );
   };
 
-  handleViewRecipe = (recipe) => {
+  manipularVerReceita = (receita) => {
     Alert.alert(
       "Visualizar Receita",
-      `Abrindo receita completa de ${recipe.medication}`,
+      `Abrindo receita completa de ${receita.medicamento}`,
       [{ text: "OK" }]
     );
   };
 
-  handleShareRecipe = (recipe) => {
+  manipularCompartilharReceita = (receita) => {
     Alert.alert(
       "Compartilhar Receita",
-      `Compartilhar receita de ${recipe.medication}`,
+      `Compartilhar receita de ${receita.medicamento}`,
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Compartilhar" }
@@ -118,10 +127,10 @@ export default class ReceitasMedicasScreen extends Component {
     );
   };
 
-  handleSetReminder = (recipe) => {
+  manipularConfigurarLembrete = (receita) => {
     Alert.alert(
       "Lembrete",
-      `Configurar lembrete para ${recipe.medication}?`,
+      `Configurar lembrete para ${receita.medicamento}?`,
       [
         { text: "Cancelar", style: "cancel" },
         { text: "Configurar", onPress: () => Alert.alert("Sucesso", "Lembrete configurado!") }
@@ -129,136 +138,139 @@ export default class ReceitasMedicasScreen extends Component {
     );
   };
 
-  renderRecipeCard = (recipe, isActive = true) => {
-    const isExpiringSoon = isActive && new Date(recipe.expiryDate.split('/').reverse().join('-')) < new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+  renderizarCardReceita = (receita, estaAtiva = true) => {
+    const expiraEmBreve = estaAtiva && new Date(receita.dataValidade.split('/').reverse().join('-')) < new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
     return (
-      <View key={recipe.id} style={styles.recipeCard}>
-        {isExpiringSoon && (
-          <View style={styles.warningBanner}>
-            <Text style={styles.warningText}>⚠️ Receita expira em breve</Text>
+      <View key={receita.id} style={styles.cardReceita}>
+        {expiraEmBreve && (
+          <View style={styles.bannerAviso}>
+            <Text style={styles.textoAviso}>⚠️ Receita expira em breve</Text>
           </View>
         )}
 
-        <View style={styles.recipeHeader}>
-          <View style={styles.recipeTypeContainer}>
-            <Text style={styles.recipeIcon}>{recipe.icon}</Text>
+        <View style={styles.cabecalhoReceita}>
+          <View style={styles.containerTipoReceita}>
+            <Image 
+              source={imagensMedicamentos[receita.imagem]} 
+              style={styles.imagemMedicamento}
+              resizeMode="contain"
+            />
             <View style={{ flex: 1 }}>
-              <Text style={styles.medicationName}>{recipe.medication}</Text>
-              <Text style={styles.doctorName}>{recipe.doctor}</Text>
-              <Text style={styles.specialtyText}>{recipe.specialty}</Text>
+              <Text style={styles.nomeMedicamento}>{receita.medicamento}</Text>
+              <Text style={styles.nomeMedico}>{receita.medico}</Text>
+              <Text style={styles.textoEspecialidade}>{receita.especialidade}</Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.recipeDetails}>
-          <View style={styles.dosageSection}>
-            <Text style={styles.sectionTitle}>💊 Posologia</Text>
-            <Text style={styles.dosageText}>{recipe.dosage} - {recipe.frequency}</Text>
-            <Text style={styles.durationText}>Duração: {recipe.duration}</Text>
+        <View style={styles.detalhesReceita}>
+          <View style={styles.secaoDosagem}>
+            <Text style={styles.tituloSecao}>💊 Posologia</Text>
+            <Text style={styles.textoDosagem}>{receita.dosagem} - {receita.frequencia}</Text>
+            <Text style={styles.textoDuracao}>Duração: {receita.duracao}</Text>
           </View>
 
-          <View style={styles.instructionsSection}>
-            <Text style={styles.sectionTitle}>📋 Instruções</Text>
-            <Text style={styles.instructionsText}>{recipe.instructions}</Text>
+          <View style={styles.secaoInstrucoes}>
+            <Text style={styles.tituloSecao}>📋 Instruções</Text>
+            <Text style={styles.textoInstrucoes}>{receita.instrucoes}</Text>
           </View>
 
-          <View style={styles.datesSection}>
-            <View style={styles.dateItem}>
-              <Text style={styles.dateLabel}>Emitida em:</Text>
-              <Text style={styles.dateValue}>{recipe.date}</Text>
+          <View style={styles.secaoDatas}>
+            <View style={styles.itemData}>
+              <Text style={styles.labelData}>Emitida em:</Text>
+              <Text style={styles.valorData}>{receita.dataEmissao}</Text>
             </View>
-            <View style={styles.dateItem}>
-              <Text style={styles.dateLabel}>Válida até:</Text>
+            <View style={styles.itemData}>
+              <Text style={styles.labelData}>Válida até:</Text>
               <Text style={[
-                styles.dateValue,
-                isExpiringSoon && styles.expiringDate
+                styles.valorData,
+                expiraEmBreve && styles.dataExpirando
               ]}>
-                {recipe.expiryDate}
+                {receita.dataValidade}
               </Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => this.handleViewRecipe(recipe)}
-          >
-            <Text style={styles.actionButtonText}>👁️ Ver</Text>
-          </TouchableOpacity>
-          
-          {isActive && (
-            <>
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => this.handleSetReminder(recipe)}
-              >
-                <Text style={styles.actionButtonText}>⏰ Lembrete</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => this.handleShareRecipe(recipe)}
-              >
-                <Text style={styles.actionButtonText}>📤 Enviar</Text>
-              </TouchableOpacity>
-            </>
-          )}
-          
-          {(isExpiringSoon || !isActive) && (
+        {estaAtiva && (
+          <View style={styles.containerAcoes}>
             <TouchableOpacity 
-              style={[styles.actionButton, styles.renewButton]}
-              onPress={() => this.handleRenewRecipe(recipe)}
+              style={styles.botaoAcao}
+              onPress={() => this.manipularVerReceita(receita)}
             >
-              <Text style={[styles.actionButtonText, styles.renewButtonText]}>🔄 Renovar</Text>
+              <Text style={styles.textoBotaoAcao}>👁️ Ver</Text>
             </TouchableOpacity>
-          )}
-        </View>
+            
+            <TouchableOpacity 
+              style={styles.botaoAcao}
+              onPress={() => this.manipularConfigurarLembrete(receita)}
+            >
+              <Text style={styles.textoBotaoAcao}>⏰ Lembrete</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={styles.botaoAcao}
+              onPress={() => this.manipularCompartilharReceita(receita)}
+            >
+              <Text style={styles.textoBotaoAcao}>📤 Enviar</Text>
+            </TouchableOpacity>
+            
+            {expiraEmBreve && (
+              <TouchableOpacity 
+                style={[styles.botaoAcao, styles.botaoRenovar]}
+                onPress={() => this.manipularRenovarReceita(receita)}
+              >
+                <Text style={[styles.textoBotaoAcao, styles.textoBotaoRenovar]}>🔄 Renovar</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
       </View>
     );
   };
 
   render() {
     const { navigation } = this.props;
-    const { selectedTab, activeRecipes, expiredRecipes } = this.state;
+    const { abaSelecionada, receitasAtivas, receitasVencidas } = this.state;
 
-    const currentList = selectedTab === "ativas" ? activeRecipes : expiredRecipes;
-    const isEmpty = currentList.length === 0;
+    const listaAtual = abaSelecionada === "ativas" ? receitasAtivas : receitasVencidas;
+    const estaVazio = listaAtual.length === 0;
 
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
+        <View style={styles.cabecalho}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backButton}>← Voltar</Text>
+            <Text style={styles.botaoVoltar}>← Voltar</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Receitas Médicas</Text>
+          <Text style={styles.tituloCabecalho}>Receitas Médicas</Text>
         </View>
 
-        <View style={styles.tabContainer}>
+        <View style={styles.containerAbas}>
           <TouchableOpacity
             style={[
-              styles.tab,
-              selectedTab === "ativas" && styles.tabActive
+              styles.aba,
+              abaSelecionada === "ativas" && styles.abaAtiva
             ]}
-            onPress={() => this.setState({ selectedTab: "ativas" })}
+            onPress={() => this.setState({ abaSelecionada: "ativas" })}
           >
             <Text style={[
-              styles.tabText,
-              selectedTab === "ativas" && styles.tabTextActive
+              styles.textoAba,
+              abaSelecionada === "ativas" && styles.textoAbaAtiva
             ]}>
               Ativas
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[
-              styles.tab,
-              selectedTab === "vencidas" && styles.tabActive
+              styles.aba,
+              abaSelecionada === "vencidas" && styles.abaAtiva
             ]}
-            onPress={() => this.setState({ selectedTab: "vencidas" })}
+            onPress={() => this.setState({ abaSelecionada: "vencidas" })}
           >
             <Text style={[
-              styles.tabText,
-              selectedTab === "vencidas" && styles.tabTextActive
+              styles.textoAba,
+              abaSelecionada === "vencidas" && styles.textoAbaAtiva
             ]}>
               Vencidas
             </Text>
@@ -267,22 +279,22 @@ export default class ReceitasMedicasScreen extends Component {
 
         <ScrollView 
           style={styles.scrollView}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={styles.conteudo}
         >
-          {isEmpty ? (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyIcon}>📄</Text>
-              <Text style={styles.emptyTitle}>Nenhuma receita</Text>
-              <Text style={styles.emptyText}>
-                {selectedTab === "ativas" 
+          {estaVazio ? (
+            <View style={styles.containerVazio}>
+              <Text style={styles.iconeVazio}>📄</Text>
+              <Text style={styles.tituloVazio}>Nenhuma receita</Text>
+              <Text style={styles.textoVazio}>
+                {abaSelecionada === "ativas" 
                   ? "Você não tem receitas ativas no momento"
                   : "Você não tem receitas vencidas"}
               </Text>
             </View>
           ) : (
             <>
-              {currentList.map(recipe => 
-                this.renderRecipeCard(recipe, selectedTab === "ativas")
+              {listaAtual.map(receita => 
+                this.renderizarCardReceita(receita, abaSelecionada === "ativas")
               )}
             </>
           )}
@@ -297,63 +309,63 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f0f4f8",
   },
-  header: {
+  cabecalho: {
     backgroundColor: "#2d6cdf",
     paddingTop: 50,
     paddingBottom: 20,
     paddingHorizontal: 20,
   },
-  backButton: {
+  botaoVoltar: {
     color: "#fff",
     fontSize: 16,
     marginBottom: 10,
   },
-  headerTitle: {
+  tituloCabecalho: {
     fontSize: 28,
     fontWeight: "bold",
     color: "#fff",
   },
-  tabContainer: {
+  containerAbas: {
     flexDirection: "row",
     backgroundColor: "#fff",
     paddingHorizontal: 20,
     paddingTop: 10,
     elevation: 2,
   },
-  tab: {
+  aba: {
     flex: 1,
     paddingVertical: 12,
     alignItems: "center",
     borderBottomWidth: 3,
     borderBottomColor: "transparent",
   },
-  tabActive: {
+  abaAtiva: {
     borderBottomColor: "#2d6cdf",
   },
-  tabText: {
+  textoAba: {
     fontSize: 16,
     color: "#666",
     fontWeight: "500",
   },
-  tabTextActive: {
+  textoAbaAtiva: {
     color: "#2d6cdf",
     fontWeight: "bold",
   },
   scrollView: {
     flex: 1,
   },
-  content: {
+  conteudo: {
     padding: 20,
     paddingBottom: 40,
   },
-  recipeCard: {
+  cardReceita: {
     backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     elevation: 3,
   },
-  warningBanner: {
+  bannerAviso: {
     backgroundColor: "#fff3cd",
     padding: 10,
     borderRadius: 8,
@@ -361,136 +373,139 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: "#ff9800",
   },
-  warningText: {
+  textoAviso: {
     color: "#856404",
     fontSize: 14,
     fontWeight: "600",
   },
-  recipeHeader: {
+  cabecalhoReceita: {
     marginBottom: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
   },
-  recipeTypeContainer: {
+  containerTipoReceita: {
     flexDirection: "row",
     alignItems: "flex-start",
   },
-  recipeIcon: {
-    fontSize: 32,
+  imagemMedicamento: {
+    width: 60,
+    height: 60,
     marginRight: 12,
+    borderRadius: 8,
+    backgroundColor: "#f5f5f5",
   },
-  medicationName: {
+  nomeMedicamento: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 4,
   },
-  doctorName: {
+  nomeMedico: {
     fontSize: 14,
     color: "#666",
     marginBottom: 2,
   },
-  specialtyText: {
+  textoEspecialidade: {
     fontSize: 13,
     color: "#999",
   },
-  recipeDetails: {
+  detalhesReceita: {
     marginBottom: 12,
   },
-  dosageSection: {
+  secaoDosagem: {
     backgroundColor: "#f8f9fa",
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
   },
-  sectionTitle: {
+  tituloSecao: {
     fontSize: 14,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 6,
   },
-  dosageText: {
+  textoDosagem: {
     fontSize: 15,
     color: "#333",
     fontWeight: "600",
     marginBottom: 4,
   },
-  durationText: {
+  textoDuracao: {
     fontSize: 14,
     color: "#666",
   },
-  instructionsSection: {
+  secaoInstrucoes: {
     backgroundColor: "#e8f1ff",
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
   },
-  instructionsText: {
+  textoInstrucoes: {
     fontSize: 14,
     color: "#333",
     lineHeight: 20,
   },
-  datesSection: {
+  secaoDatas: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingTop: 8,
   },
-  dateItem: {
+  itemData: {
     flex: 1,
   },
-  dateLabel: {
+  labelData: {
     fontSize: 12,
     color: "#999",
     marginBottom: 2,
   },
-  dateValue: {
+  valorData: {
     fontSize: 14,
     color: "#333",
     fontWeight: "600",
   },
-  expiringDate: {
+  dataExpirando: {
     color: "#f57c00",
   },
-  actionsContainer: {
+  containerAcoes: {
     flexDirection: "row",
     gap: 8,
     marginTop: 8,
   },
-  actionButton: {
+  botaoAcao: {
     flex: 1,
     backgroundColor: "#e8f1ff",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
   },
-  actionButtonText: {
+  textoBotaoAcao: {
     color: "#2d6cdf",
     fontSize: 13,
     fontWeight: "600",
   },
-  renewButton: {
+  botaoRenovar: {
     backgroundColor: "#e8f5e9",
   },
-  renewButtonText: {
+  textoBotaoRenovar: {
     color: "#4CAF50",
   },
-  emptyContainer: {
+  containerVazio: {
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 60,
   },
-  emptyIcon: {
+  iconeVazio: {
     fontSize: 64,
     marginBottom: 16,
   },
-  emptyTitle: {
+  tituloVazio: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 8,
   },
-  emptyText: {
+  textoVazio: {
     fontSize: 16,
     color: "#666",
     textAlign: "center",

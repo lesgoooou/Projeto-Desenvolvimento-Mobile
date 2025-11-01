@@ -43,7 +43,6 @@ export default class ResultadosExamesScreen extends Component {
       historicoSnapshot.forEach((child) => {
         const item = child.val();
         
-        // Só adiciona se foi marcado como FEITO (feito === true)
         if (item.feito === true) {
           examesFeitos.push({
             id: child.key,
