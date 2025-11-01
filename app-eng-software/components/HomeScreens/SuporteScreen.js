@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, Alert, Linking } from "react-native";
 
 export default class ContatoSuporteScreen extends Component {
-  telefone = "11989259944";
+  telefone = "989259944";
 
   fazerLigacao = () => {
     const numeroFormatado = `tel:${this.telefone}`;

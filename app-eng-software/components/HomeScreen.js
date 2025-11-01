@@ -88,6 +88,15 @@ export default class HomeScreen extends Component {
                 "Ver consultas e exames marcados",
                 () => navigation.navigate("MeusAgendamentos")
               )}
+              
+              {this.renderMenuItem(
+                "👩🏻‍💻",
+                "Consulta Online",
+                "Faça suas consultas sem sair de casa",
+                () => navigation.navigate("ConsultaOnline")
+              )}
+
+
             </View>
 
             <View style={styles.section}>
@@ -101,25 +110,19 @@ export default class HomeScreen extends Component {
               )}
               
               {this.renderMenuItem(
-                "📝",
-                "Histórico Médico",
-                "Consultas e procedimentos anteriores",
-                () => navigation.navigate("HistMedico")
-              )}
-              
-              {this.renderMenuItem(
                 "💊",
                 "Receitas Médicas",
                 "Visualizar receitas ativas",
                 () => navigation.navigate("Receitas")
               )}
+
             </View>
 
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Outros Serviços</Text>
               
               {this.renderMenuItem(
-                "🏥",
+                "🪪",
                 "Carteirinha Digital",
                 "Sua carteirinha do convênio",
                 () => navigation.navigate("Carteirinha")

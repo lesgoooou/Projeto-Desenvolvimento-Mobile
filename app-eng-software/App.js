@@ -11,7 +11,7 @@ import MeusAgendamentosScreen from "./components/HomeScreens/MeusAgendamentosScr
 import CarteirinhaScreen from "./components/HomeScreens/CarteirinhaScreen";
 import SuporteScreen from "./components/HomeScreens/SuporteScreen";
 import ReceitaScreen from "./components/HomeScreens/ReceitaScreen";
-import HistoricoMedicoScreen from "./components/HomeScreens/HistoricoMedicoScreen";
+import ConsultaOnlineScreen from "./components/HomeScreens/ConsultaOnlineScreen";
 import ResultadoExameScreen from "./components/HomeScreens/ResultadoExameScreen";
 import './config/config';
 
@@ -31,7 +31,7 @@ export default class App extends Component {
           <Stack.Screen name="Carteirinha" component={CarteirinhaScreen} />
           <Stack.Screen name="Suporte" component={SuporteScreen} />
           <Stack.Screen name="Receitas" component={ReceitaScreen} />
-          <Stack.Screen name="HistMedico" component={HistoricoMedicoScreen} />
+          <Stack.Screen name="ConsultaOnline" component={ConsultaOnlineScreen} />
           <Stack.Screen name="Resultados" component={ResultadoExameScreen} />
         </Stack.Navigator>
       </NavigationContainer>

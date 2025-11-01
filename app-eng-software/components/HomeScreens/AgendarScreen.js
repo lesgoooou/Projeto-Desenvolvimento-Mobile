@@ -76,24 +76,20 @@ export default class AgendarScreen extends Component {
 
   handleConfirm = () => {
     const { selectedType, selectedSpecialty, selectedDoctor, selectedDate, selectedTime } = this.state;
-    
-    // 1️⃣ Validação
+
     if (!selectedType || !selectedSpecialty || !selectedDoctor || !selectedDate || !selectedTime) {
       Alert.alert("Atenção", "Por favor, preencha todos os campos");
       return;
     }
 
-    // 2️⃣ Pegar ID do usuário logado
     const user = firebase.auth().currentUser;
     if (!user) {
       Alert.alert("Erro", "Usuário não autenticado");
       return;
     }
 
-    // 3️⃣ Pegar a data completa (valor) da data selecionada
     const dataCompleta = this.state.datas.find(d => d.display === selectedDate)?.value || selectedDate;
 
-    // 4️⃣ Salvar no Firebase
     firebase.database()
       .ref('/agendados')
       .push({

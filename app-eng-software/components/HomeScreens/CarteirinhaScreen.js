@@ -1,16 +1,30 @@
 import React, { Component } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert, ActivityIndicator, Modal } from "react-native";
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  Dimensions, 
+  TouchableOpacity, 
+  Alert, 
+  ActivityIndicator, 
+  Modal,
+  TextInput,
+  ScrollView
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import firebase from '../../config/config';
 
-class CarteirinhaScreen extends Component {
+export default class CarteirinhaScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
       loading: true,
       carteirinha: null,
       usuario: null,
-      mostrarModalCategoria: false,
+      mostrarModalCadastro: false,
+      categoria: '',
+      numero: '',
+      validade: '',
     };
   }
 
@@ -49,27 +63,41 @@ class CarteirinhaScreen extends Component {
     }
   }
 
-  gerarNumeroCarteirinha = () => {
-    const parte1 = Math.floor(1000 + Math.random() * 9000);
-    const parte2 = Math.floor(1000 + Math.random() * 9000);
-    const parte3 = Math.floor(1000 + Math.random() * 9000);
-    return `${parte1} ${parte2} ${parte3}`;
-  }
-  
-  calcularDataValidade = () => {
-    const dataAtual = new Date();
-    const dataValidade = new Date(dataAtual.setFullYear(dataAtual.getFullYear() + 5));
-    const mes = String(dataValidade.getMonth() + 1).padStart(2, '0');
-    const ano = dataValidade.getFullYear();
-    return `${mes}/${ano}`;
+  validarFormulario = () => {
+    const { categoria, numero, validade } = this.state;
+
+    if (!categoria.trim()) {
+      Alert.alert('Atenção', 'Por favor, informe a categoria do convênio');
+      return false;
+    }
+
+    if (!numero.trim()) {
+      Alert.alert('Atenção', 'Por favor, informe o número da carteirinha');
+      return false;
+    }
+
+    if (!validade.trim()) {
+      Alert.alert('Atenção', 'Por favor, informe a validade');
+      return false;
+    }
+
+    const validadeRegex = /^(0[1-9]|1[0-2])\/\d{4}$/;
+    if (!validadeRegex.test(validade)) {
+      Alert.alert('Atenção', 'Formato da validade inválido. Use MM/AAAA (ex: 12/2028)');
+      return false;
+    }
+
+    return true;
   }
 
-  criarCarteirinha = (categoria) => {
-    this.setState({ loading: true, mostrarModalCategoria: false });
+  cadastrarCarteirinha = () => {
+    if (!this.validarFormulario()) {
+      return;
+    }
+
+    this.setState({ loading: true, mostrarModalCadastro: false });
     
     const user = firebase.auth().currentUser;
-    const numeroCarteirinha = this.gerarNumeroCarteirinha();
-    const dataValidade = this.calcularDataValidade();
     const dataCriacao = new Date().toISOString();
     
     firebase.database()
@@ -77,68 +105,118 @@ class CarteirinhaScreen extends Component {
       .set({
         userId: user.uid,
         nome: this.state.usuario.nome,
-        numero: numeroCarteirinha,
-        categoria: categoria,
-        dataValidade: dataValidade,
+        categoria: this.state.categoria.trim(),
+        numero: this.state.numero.trim(),
+        validade: this.state.validade.trim(),
         criadaEm: dataCriacao,
       })
       .then(() => {
-        Alert.alert('Sucesso', 'Carteirinha criada com sucesso!');
+        this.setState({
+          categoria: '',
+          numero: '',
+          validade: '',
+        });
         this.carregarDados();
       })
       .catch((error) => {
-        Alert.alert('Erro', 'Não foi possível criar a carteirinha');
-        console.error('Erro ao criar carteirinha:', error);
+        Alert.alert('Erro', 'Não foi possível cadastrar a carteirinha');
+        console.error('Erro ao cadastrar carteirinha:', error);
         this.setState({ loading: false });
       });
   }
 
-  abrirModalCategoria = () => {
-    this.setState({ mostrarModalCategoria: true });
+  abrirModalCadastro = () => {
+    this.setState({ mostrarModalCadastro: true });
   }
 
   fecharModal = () => {
-    this.setState({ mostrarModalCategoria: false });
+    this.setState({ 
+      mostrarModalCadastro: false,
+      categoria: '',
+      numero: '',
+      validade: '',
+    });
   }
 
-  selecionarCategoria = (categoria) => {
-    this.criarCarteirinha(categoria);
+  formatarValidade = (texto) => {
+    let numeros = texto.replace(/[^0-9]/g, '');
+
+    numeros = numeros.substring(0, 6);
+
+    if (numeros.length > 2) {
+      numeros = numeros.substring(0, 2) + '/' + numeros.substring(2);
+    }
+    
+    this.setState({ validade: numeros });
   }
 
-  renderModalCategoria = () => {
-    const categorias = [
-      { id: 1, nome: 'Bem Estar Basic' },
-      { id: 2, nome: 'Bem Estar Plus' },
-      { id: 3, nome: 'Bem Estar Premium' },
-    ];
-
+  renderModalCadastro = () => {
     return (
       <Modal
-        visible={this.state.mostrarModalCategoria}
+        visible={this.state.mostrarModalCadastro}
         transparent={true}
         animationType="slide"
         onRequestClose={this.fecharModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Escolha sua Categoria</Text>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalTitle}>Cadastrar Carteirinha</Text>
+              <Text style={styles.modalSubtitle}>
+                Informe os dados da sua carteirinha do convênio
+              </Text>
 
-            {categorias.map((categoria) => (
-              <TouchableOpacity
-                key={categoria.id}
-                style={styles.categoriaButton}
-                onPress={() => this.selecionarCategoria(categoria.nome)}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Categoria/Convênio *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: Unimed, Amil, Bradesco Saúde"
+                  placeholderTextColor="#999"
+                  value={this.state.categoria}
+                  onChangeText={(texto) => this.setState({ categoria: texto })}
+                  autoCapitalize="words"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Número da Carteirinha *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Ex: 1234 5678 9012 3456"
+                  placeholderTextColor="#999"
+                  value={this.state.numero}
+                  onChangeText={(texto) => this.setState({ numero: texto })}
+                  keyboardType="numeric"
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Validade *</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="MM/AAAA (Ex: 12/2028)"
+                  placeholderTextColor="#999"
+                  value={this.state.validade}
+                  onChangeText={this.formatarValidade}
+                  keyboardType="numeric"
+                  maxLength={7}
+                />
+              </View>
+
+              <TouchableOpacity 
+                style={styles.salvarButton}
+                onPress={this.cadastrarCarteirinha}
               >
-                <Text style={styles.categoriaText}>{categoria.nome}</Text>
+                <Text style={styles.salvarButtonText}>Salvar Carteirinha</Text>
               </TouchableOpacity>
-            ))}
 
-            <TouchableOpacity 
-              style={styles.cancelarButton} 
-              onPress={this.fecharModal}
-            >
-              <Text style={styles.cancelarText}>Cancelar</Text>
-            </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.cancelarButton} 
+                onPress={this.fecharModal}
+              >
+                <Text style={styles.cancelarText}>Cancelar</Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -172,15 +250,18 @@ class CarteirinhaScreen extends Component {
 
         {!carteirinha ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="card-outline" size={80} color="#b10f2e" />
+            <Ionicons name="card-outline" size={80} color="#1d15b3" />
             <Text style={styles.emptyText}>
-              Você ainda não possui uma carteirinha
+              Você ainda não cadastrou sua carteirinha
+            </Text>
+            <Text style={styles.emptySubtext}>
+              Cadastre os dados da carteirinha do seu convênio
             </Text>
             <TouchableOpacity 
               style={styles.createButton} 
-              onPress={this.abrirModalCategoria}
+              onPress={this.abrirModalCadastro}
             >
-              <Text style={styles.createButtonText}>Criar Carteirinha</Text>
+              <Text style={styles.createButtonText}>Cadastrar Carteirinha</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -193,23 +274,23 @@ class CarteirinhaScreen extends Component {
             </View>
 
             <View style={styles.infoContainer}>
+              <Text style={styles.label}>Convênio:</Text>
+              <Text style={styles.value}>{carteirinha.categoria}</Text>
+            </View>
+
+            <View style={styles.infoContainer}>
               <Text style={styles.label}>Número:</Text>
               <Text style={styles.value}>{carteirinha.numero}</Text>
             </View>
 
             <View style={styles.infoContainer}>
-              <Text style={styles.label}>Categoria:</Text>
-              <Text style={styles.value}>{carteirinha.categoria}</Text>
-            </View>
-
-            <View style={styles.infoContainer}>
               <Text style={styles.label}>Validade:</Text>
-              <Text style={styles.value}>{carteirinha.dataValidade}</Text>
+              <Text style={styles.value}>{carteirinha.validade}</Text>
             </View>
           </View>
         )}
         
-        {this.renderModalCategoria()}
+        {this.renderModalCadastro()}
       </View>
     );
   }
@@ -236,7 +317,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   card: {
-    backgroundColor: "#b10f2e",
+    backgroundColor: "#1d15b3",
     borderRadius: 20,
     padding: 20,
     justifyContent: "space-around",
@@ -266,17 +347,24 @@ const styles = StyleSheet.create({
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 40,
   },
   emptyText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: "bold",
     marginTop: 20,
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  emptySubtext: {
+    color: "#ccc",
+    fontSize: 14,
     marginBottom: 30,
     textAlign: "center",
-    paddingHorizontal: 40,
   },
   createButton: {
-    backgroundColor: "#b10f2e",
+    backgroundColor: "#1d15b3",
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 10,
@@ -288,44 +376,67 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     justifyContent: "center",
     alignItems: "center",
   },
   modalContainer: {
     backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 20,
-    width: "80%",
+    borderRadius: 20,
+    padding: 24,
+    width: "90%",
+    maxHeight: "80%",
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#0d0d2b",
     textAlign: "center",
+    marginBottom: 8,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  inputContainer: {
     marginBottom: 20,
   },
-  categoriaButton: {
-    backgroundColor: "#b10f2e",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 8,
   },
-  categoriaText: {
+  input: {
+    backgroundColor: "#f5f5f5",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    padding: 14,
+    fontSize: 16,
+    color: "#333",
+  },
+  salvarButton: {
+    backgroundColor: "#1d15b3",
+    padding: 16,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  salvarButtonText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center",
   },
   cancelarButton: {
-    marginTop: 10,
-    padding: 15,
+    marginTop: 12,
+    padding: 12,
+    alignItems: "center",
   },
   cancelarText: {
     color: "#666",
     fontSize: 16,
-    textAlign: "center",
   },
 });
-
-export default CarteirinhaScreen;

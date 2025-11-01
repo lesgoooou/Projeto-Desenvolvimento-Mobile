@@ -29,7 +29,7 @@ export default class ReceitasMedicasScreen extends Component {
           medico: "Dr. Carlos Silva",
           especialidade: "Cardiologia",
           dataEmissao: "15/10/2025",
-          dataValidade: "15/01/2026",
+          dataValidade: "05/11/2025",
           dosagem: "1 comprimido",
           frequencia: "1x ao dia (manhã)",
           duracao: "Uso contínuo",
@@ -133,7 +133,7 @@ export default class ReceitasMedicasScreen extends Component {
       `Configurar lembrete para ${receita.medicamento}?`,
       [
         { text: "Cancelar", style: "cancel" },
-        { text: "Configurar", onPress: () => Alert.alert("Sucesso", "Lembrete configurado!") }
+        { text: "Configurar"}
       ]
     );
   };
@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   },
   textoBotaoAcao: {
     color: "#2d6cdf",
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: "600",
   },
   botaoRenovar: {
