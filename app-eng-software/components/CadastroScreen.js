@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import firebase from '../config/config';
+import { Audio } from 'expo-av';
 
 export default class CadastroScreen extends Component {
   constructor(props) {
@@ -17,7 +18,35 @@ export default class CadastroScreen extends Component {
       user: '',
       senha: '',
     };
+    this.sound = null;
   }
+
+  async componentDidMount() {
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+  }
+
+  async componentWillUnmount() {
+    if (this.sound) {
+      await this.sound.unloadAsync();
+    }
+  }
+
+  tocarSomSucesso = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3' },
+        { shouldPlay: true, volume: 0.7 }
+      );
+      this.sound = sound;
+      
+    } catch (error) {
+      console.log('Erro ao tocar som:', error);
+    }
+  };
 
   gravar(){
     const email = this.state.user.toLowerCase();
@@ -42,7 +71,9 @@ export default class CadastroScreen extends Component {
             criadoEm: new Date().toISOString(),
           });
       })
-      .then(() => {
+      .then(async () => {
+        await this.tocarSomSucesso();
+
         Alert.alert('Sucesso','Usuário cadastrado com sucesso!');
         this.setState({ user: '', password: '', nome: '' });
         this.props.navigation.navigate('Home');

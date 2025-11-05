@@ -120,7 +120,6 @@ export default class MeusAgendamentosScreen extends Component {
           movido_em: new Date().toISOString(),
         });
 
-      // Remove de Agendados
       await firebase.database()
         .ref(`/agendados/${agendamento.id}`)
         .remove();

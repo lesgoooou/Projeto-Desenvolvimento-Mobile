@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import firebase from "firebase";
+import firebase from '../config/config';
+import { Audio } from 'expo-av';
 
 export default class LoginScreen extends React.Component {
   constructor(props) {
@@ -9,7 +10,38 @@ export default class LoginScreen extends React.Component {
       user: "",
       senha: ""
     }; 
+    this.sound = null;
   }
+
+  async componentDidMount() {
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true, 
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+  }
+
+  async componentWillUnmount() {
+    if (this.sound) {
+      await this.sound.unloadAsync();
+    }
+  }
+
+  tocarSomSucesso = async () => {
+    try {
+
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: 'https://assets.mixkit.co/active_storage/sfx/2018/2018-preview.mp3' },
+        { shouldPlay: true, volume: 0.5 }
+      );
+
+      this.sound = sound;
+
+    } catch (error) {
+      console.log('Erro ao tocar som:', error);
+    }
+  };
+
 
   ler() {
     const email = this.state.user.toLowerCase();
@@ -17,7 +49,9 @@ export default class LoginScreen extends React.Component {
 
     firebase.auth()
       .signInWithEmailAndPassword(email, password)
-      .then(() => {
+      .then(async () => {
+        await this.tocarSomSucesso();
+
         Alert.alert("Sucesso", "Login realizado!");
         this.props.navigation.navigate("Home");
       })

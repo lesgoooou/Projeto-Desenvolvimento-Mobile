@@ -178,7 +178,7 @@ export default class ConsultaOnlineScreen extends Component {
             style={styles.entrarButton}
             onPress={() => this.handleEntrar(consulta)}
           >
-            <Text style={styles.entrarButtonText}>🎥 Entrar na Consulta</Text>
+            <Text style={styles.entrarButtonText}>👩🏻‍💻 Entrar na Consulta</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.aguardarContainer}>
@@ -222,7 +222,7 @@ export default class ConsultaOnlineScreen extends Component {
           <View style={styles.content}>
             {consultas.length === 0 ? (
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyIcon}>🎥</Text>
+                <Text style={styles.emptyIcon}>👩🏻‍💻</Text>
                 <Text style={styles.emptyTitle}>Nenhuma consulta online agendada</Text>
                 <Text style={styles.emptyText}>
                   Agende uma consulta para realizar atendimento online

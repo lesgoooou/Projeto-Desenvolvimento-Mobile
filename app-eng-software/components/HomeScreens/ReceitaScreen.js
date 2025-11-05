@@ -29,7 +29,7 @@ export default class ReceitasMedicasScreen extends Component {
           medico: "Dr. Carlos Silva",
           especialidade: "Cardiologia",
           dataEmissao: "15/10/2025",
-          dataValidade: "05/11/2025",
+          dataValidade: "13/11/2025",
           dosagem: "1 comprimido",
           frequencia: "1x ao dia (manhã)",
           duracao: "Uso contínuo",
