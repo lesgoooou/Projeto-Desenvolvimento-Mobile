@@ -13,18 +13,15 @@
     "react": "19.1.0",
     "react-native": "0.81.5",
     "firebase": "*",
-    "@expo/vector-icons": "^15.0.3",
-    "react-native-paper": "4.9.2",
-    "react-native-screens": "~4.16.0",
     "@react-navigation/stack": "*",
-    "@react-navigation/compat": "*",
     "@react-navigation/native": "*",
     "@react-native-firebase/app": "23.4.1",
     "@react-native-firebase/auth": "*",
-    "react-native-gesture-handler": "~2.28.0",
-    "react-native-safe-area-context": "~5.6.0",
     "@react-native-firebase/database": "*",
-    "expo-av": "~16.0.7"
+    "expo-av": "~16.0.7",
+    "react-native-screens": "~4.16.0",
+    "react-native-safe-area-context": "~5.6.0",
+    "react-native-gesture-handler": "~2.28.0"
   },
   "private": true
 }

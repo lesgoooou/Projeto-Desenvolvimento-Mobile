@@ -11,7 +11,6 @@ import {
   TextInput,
   ScrollView
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import firebase from '../../config/config';
 
 export default class CarteirinhaScreen extends Component {
@@ -240,12 +239,8 @@ export default class CarteirinhaScreen extends Component {
 
     return (
       <View style={styles.container}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={28} color="#fff" />
-          <Text style={styles.backText}>Voltar</Text>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backText}>← Voltar</Text>
         </TouchableOpacity>
 
         {!carteirinha ? (
