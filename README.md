@@ -28,7 +28,12 @@ O App da clínica **Bem Estar** é um aplicativo mobile que facilita o gerenciam
 - Entrar em contato com suporte
 
 ---
+## Motivações e Objetivo
 
+Este App foi criado em por conta de uma projeto da matéria de Engenharia de Software, onde deveriamos desenvolver uma clínica médica.
+A ideia dele é ser o aplicativo que o paciente da clínica iria usar, nele foi implementada as principais funcionalidades necessárias para o uso diário e efetivo do paciente, deixando intuitiva a interação. 
+
+---
 ## Funcionalidades
 
 ### 🔐 Autenticação
@@ -73,13 +78,22 @@ O App da clínica **Bem Estar** é um aplicativo mobile que facilita o gerenciam
 
 ## Tecnologias Utilizadas
 
-- **React Native** - Framework mobile
-- **Firebase**
-  - Authentication (autenticação de usuários)
-  - Realtime Database (banco de dados)
-- **Snack Expo** - Plataforma de desenvolvimento
-- **React Navigation** - Navegação entre telas
-- **Ionicons** - Biblioteca de ícones
+### Mobile (Paciente)
+- **React Native** - Framework mobile multiplataforma
+- **Snack Expo** - Plataforma de desenvolvimento e prototipação
+- **Firebase SDK (v8.2.3)** 
+  - Authentication - Autenticação de usuários
+  - Realtime Database - Banco de dados em tempo real
+- **React Navigation** - Sistema de navegação entre telas
+  - @react-navigation/native - Core de navegação
+  - @react-navigation/stack - Navegação em pilha
+- **React Native Gesture Handler** - Gerenciamento de gestos e toques
+- **React Native Safe Area Context** - Gerenciamento de áreas seguras (notch, barra de status)
+- **Expo AV** - Manipulação de áudio e vídeo (para consultas online)
+
+### Backend
+- **Firebase Authentication** - Gerenciamento de autenticação
+- **Firebase Realtime Database** - Armazenamento de dados em tempo real
 
 ---
 
@@ -397,6 +411,11 @@ Aguarde o emulador carregar (pode demorar alguns minutos)
 ```
 
 ---
-## Pontos Finais
+## Demonstração
 
 Vídeo fazendo a utilização do App. link: https://youtu.be/ETtLVqV46cY
+
+---
+## Próximos Passos: 
+
+Como melhorias pode-se considerar a conexão com o App do médico/funcionário, onde assim traria resultado para os exames, seria possível visualizar receitas médicas passadas pelo médico e possivelmente até se comunicar com o médico pela Consulta Online
