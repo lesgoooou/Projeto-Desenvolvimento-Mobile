@@ -2,7 +2,7 @@
 
 Sistema completo de gestão de consultas e exames médicos desenvolvido em React Native com Firebase.
 
-## 📋 Índice
+## Índice
 
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Funcionalidades](#funcionalidades)
@@ -17,9 +17,9 @@ Sistema completo de gestão de consultas e exames médicos desenvolvido em React
 
 ---
 
-## 🎯 Sobre o Projeto
+## Sobre o Projeto
 
-O **Bem Estar** é um aplicativo mobile que facilita o gerenciamento de consultas e exames médicos, permitindo aos usuários:
+O App da clínica **Bem Estar** é um aplicativo mobile que facilita o gerenciamento de consultas e exames médicos, permitindo aos usuários:
 - Agendar consultas e exames
 - Visualizar histórico de atendimentos
 - Acessar resultados de exames
@@ -29,7 +29,7 @@ O **Bem Estar** é um aplicativo mobile que facilita o gerenciamento de consulta
 
 ---
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 ### 🔐 Autenticação
 - Login com email e senha
@@ -49,7 +49,7 @@ O **Bem Estar** é um aplicativo mobile que facilita o gerenciamento de consulta
 - Confirmação de comparecimento (feito/não feito)
 - Cancelamento de agendamentos
 
-### 🎥 Consulta Online
+### 👩🏻‍💻 Consulta Online
 - Listagem de consultas online agendadas
 - Botão "Entrar" disponível 15 minutos antes
 - Contador de tempo em tempo real
@@ -68,25 +68,24 @@ O **Bem Estar** é um aplicativo mobile que facilita o gerenciamento de consulta
 ### 📞 Suporte
 - Ligação direta via telefone
 - Contato por WhatsApp (app ou web)
-- Informações de horário de atendimento
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **React Native** - Framework mobile
 - **Firebase**
   - Authentication (autenticação de usuários)
   - Realtime Database (banco de dados)
-- **Expo** - Plataforma de desenvolvimento
+- **Snack Expo** - Plataforma de desenvolvimento
 - **React Navigation** - Navegação entre telas
 - **Ionicons** - Biblioteca de ícones
 
 ---
 
-## 📁 Estrutura do Projeto
+##  Estrutura do Projeto
 ```
-bem-estar/
+app-eng-software/
 ├── assets/
 │   └── imagens/
 │       ├── amoxilina.png
@@ -96,12 +95,12 @@ bem-estar/
 │       └── omeprazol.png
 ├── config/
 │   └── config.js                     # Configuração do Firebase
-├── screens/
+├── components/
 │   ├── InicioScreen.js               # Tela inicial (Login/Cadastro)
 │   ├── LoginScreen.js                # Tela de login
 │   ├── CadastroScreen.js             # Tela de cadastro
 │   ├── HomeScreen.js                 # Tela principal (menu)
-│   ├── HomeScreens/
+│   └── HomeScreens/
 |       ├── AgendarScreen.js          # Agendamento de consultas/exames
 │       ├── MeusAgendamentosScreen.js # Visualização de agendamentos
 │       ├── CarteirinhaScreen.js      # Carteirinha digital
@@ -115,7 +114,7 @@ bem-estar/
 ```
 ---
 
-## 🔥 Configuração do Firebase
+## Configuração do Firebase
 
 ### 1. Criar projeto no Firebase
 
@@ -201,34 +200,34 @@ No Firebase Console, vá em **Realtime Database > Regras** e configure:
 
 ---
 
-## ▶️ Executando o Projeto
-```bash
-# Inicie o projeto
-expo start
+## Executando o Projeto
 
-# Ou use o npm/yarn
-npm start
-# ou
-yarn start
-```
+### Passos:
 
-Após executar, você verá um QR Code no terminal. Use o aplicativo **Expo Go** (disponível na App Store e Google Play) para escanear e testar no seu dispositivo.
+Acesse o projeto no Snack: (https://snack.expo.dev/@lesgooou/app-eng-software)
+O código já está pronto para executar
+Escolha uma das opções abaixo para visualizar:
 
-### Executar em emuladores
-```bash
-# Android
-expo start --android
+### 📱 Testar no Celular (Recomendado)
 
-# iOS (apenas macOS)
-expo start --ios
+Instale o app Expo Go (Android | iOS)
+Abra o Expo Go e escaneie o QR Code que aparece no Snack
+O app abrirá automaticamente no seu celular
 
-# Web
-expo start --web
-```
+### 🌐 Testar no Navegador
+
+Clique em "Web" no painel direito do Snack
+O app abrirá em uma janela de preview (funcionalidades limitadas)
+Não é recomendado pois o App foi criado voltado para o uso pelo celular, o que limita as interações com computador via Web
+
+### 📲 Testar em Emulador (Android/iOS)
+
+Clique em "Android" ou "iOS" no painel direito
+Aguarde o emulador carregar (pode demorar alguns minutos)
 
 ---
 
-## 🗄️ Estrutura do Banco de Dados
+## Estrutura do Banco de Dados
 
 ### **users/** - Dados dos usuários
 ```javascript
@@ -289,7 +288,7 @@ expo start --web
 
 ---
 
-## 📱 Telas do Aplicativo
+## Telas do Aplicativo
 
 ### 🏠 Tela Inicial
 - Apresentação do app
@@ -347,7 +346,7 @@ expo start --web
 
 ---
 
-## 🔄 Fluxo de Uso
+## Fluxo de Uso
 
 ### Fluxo de Agendamento
 ```
